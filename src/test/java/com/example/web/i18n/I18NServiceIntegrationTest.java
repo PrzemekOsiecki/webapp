@@ -18,7 +18,7 @@ public class I18NServiceIntegrationTest {
     @Test
     public void shouldReturnAppropriateMessageFromMessageSource() {
         //given
-        final String expected = "Bootstrap starter template";
+        final String expected = "Bootstrap Strona Startowa";
         final String messageId = "index.main.callout";
         //when
         final String actual = i18NService.getMessage(messageId);
