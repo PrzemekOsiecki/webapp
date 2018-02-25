@@ -1,6 +1,7 @@
 package com.example.backend.persistence.domain.backend;
 
 import com.example.enums.RolesEnum;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"name"})
 public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;

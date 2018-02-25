@@ -1,14 +1,12 @@
 package com.example.utils;
 
 import com.example.backend.persistence.domain.backend.User;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class UserUtils {
 
-    public User createBasicUser() {
+    public static User createBasicUser() {
         return User.builder()
                 .username("user")
                 .password("password")

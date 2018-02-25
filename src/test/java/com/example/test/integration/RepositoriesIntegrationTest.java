@@ -60,24 +60,8 @@ public class RepositoriesIntegrationTest {
 
     @Test
     public void shouldCreateNewUser() {
-        Plan basicPlan = createBasicPlan(PlansEnum.BASIC);
-        planRepository.save(basicPlan);
+        User basicUser = createUser();
 
-        User basicUser = UserUtils.createBasicUser();
-        basicUser.setPlan(basicPlan);
-
-        Role basicRole = createRole(RolesEnum.BASIC);
-        Set<UserRole> userRoles = new HashSet<>();
-        UserRole userRole = new UserRole(basicUser, basicRole);
-
-        userRoles.add(userRole);
-
-//        basicUser.getUserRoles().addAll(userRoles);
-        basicUser.setUserRoles(userRoles);
-
-        userRoles.forEach((ur) -> roleRepository.save(ur.getRole()));
-
-        userRepository.save(basicUser);
         //when
         User newlyCreatedUser = userRepository.findById((long) BASIC_ID).get();
 
@@ -92,6 +76,34 @@ public class RepositoriesIntegrationTest {
             Assert.assertNotNull(ur.getRole().getId());
         });
     }
+
+    @Test
+    public void shouldDeleteUser() {
+        User user = createUser();
+        userRepository.deleteById(user.getId());
+    }
+
+    private User createUser() {
+        Plan basicPlan = createBasicPlan(PlansEnum.BASIC);
+        planRepository.save(basicPlan);
+
+        User basicUser = UserUtils.createBasicUser();
+        basicUser.setPlan(basicPlan);
+
+        Role basicRole = createRole(RolesEnum.BASIC);
+        roleRepository.save(basicRole);
+
+        Set<UserRole> userRoles = new HashSet<>();
+        UserRole userRole = new UserRole(basicUser, basicRole);
+        userRoles.add(userRole);
+
+//        basicUser.getUserRoles().addAll(userRoles);
+        basicUser.setUserRoles(userRoles);
+        basicUser = userRepository.save(basicUser);
+        return basicUser;
+    }
+
+
 
 
     private Role createRole(RolesEnum rolesEnum) {

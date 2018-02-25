@@ -29,8 +29,8 @@ public class WebappApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Set<UserRole> userRoles = new HashSet<>();
         User user = UserUtils.createBasicUser();
+        Set<UserRole> userRoles = new HashSet<>();
         userRoles.add(new UserRole(user, new Role(RolesEnum.BASIC)));
         log.debug("Creating user with name = {}", user.getUsername());
         userService.createUser(user, PlansEnum.BASIC, userRoles);
