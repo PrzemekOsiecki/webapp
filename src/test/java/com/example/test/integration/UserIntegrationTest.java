@@ -1,39 +1,32 @@
 package com.example.test.integration;
 
+import com.example.WebappApplication;
 import com.example.backend.persistence.domain.backend.Plan;
 import com.example.backend.persistence.domain.backend.Role;
 import com.example.backend.persistence.domain.backend.User;
 import com.example.backend.persistence.domain.backend.UserRole;
-import com.example.backend.persistence.repositories.PlanRepository;
-import com.example.backend.persistence.repositories.RoleRepository;
-import com.example.backend.persistence.repositories.UserRepository;
+import com.example.config.ApplicationConfiguration;
+import com.example.config.DevelopmentConfig;
 import com.example.enums.PlansEnum;
 import com.example.enums.RolesEnum;
-import com.example.utils.UserUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
-public class RepositoriesIntegrationTest {
+@SpringBootTest(classes = {WebappApplication.class, ApplicationConfiguration.class, DevelopmentConfig.class})
+public class UserIntegrationTest extends AbstractIntegrationTest {
 
     public static final int BASIC_ID = 1;
-
-    @Autowired
-    private PlanRepository planRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Before
     public void init() {
@@ -41,6 +34,9 @@ public class RepositoriesIntegrationTest {
         Assert.assertNotNull(userRepository);
         Assert.assertNotNull(roleRepository);
     }
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Test
     public void shouldCreateNewPlan() throws Exception {
@@ -51,7 +47,7 @@ public class RepositoriesIntegrationTest {
     }
 
     @Test
-    public void shouldCreateNewRole() {
+    public void shouldCreateNewRole() throws Exception {
         Role role = createRole(RolesEnum.BASIC);
         roleRepository.save(role);
         Optional<Role> retrievedRole = roleRepository.findById(RolesEnum.BASIC.getId());
@@ -59,8 +55,12 @@ public class RepositoriesIntegrationTest {
     }
 
     @Test
-    public void shouldCreateNewUser() {
-        User basicUser = createUser();
+    public void shouldCreateNewUser() throws Exception {
+
+        String username = testName.getMethodName();
+        String email = testName.getMethodName() + "@dev.com";
+
+        User basicUser = createUser(username, email);
 
         //when
         User newlyCreatedUser = userRepository.findById((long) BASIC_ID).get();
@@ -77,41 +77,24 @@ public class RepositoriesIntegrationTest {
         });
     }
 
-    @Test
-    public void shouldDeleteUser() {
-        User user = createUser();
+    //@Test
+    public void shouldDeleteUser() throws Exception {
+        String username = testName.getMethodName();
+        String email = testName.getMethodName() + "@dev.com";
+
+        User user = createUser(username, email);
         userRepository.deleteById(user.getId());
     }
 
-    private User createUser() {
-        Plan basicPlan = createBasicPlan(PlansEnum.BASIC);
-        planRepository.save(basicPlan);
+    @Test
+    public void shouldUpdateUserPassword() {
+        User user = createUser(testName);
 
-        User basicUser = UserUtils.createBasicUser();
-        basicUser.setPlan(basicPlan);
+        String newPassword = UUID.randomUUID().toString();
 
-        Role basicRole = createRole(RolesEnum.BASIC);
-        roleRepository.save(basicRole);
+        userRepository.updateUserPassword(user.getId(), newPassword);
 
-        Set<UserRole> userRoles = new HashSet<>();
-        UserRole userRole = new UserRole(basicUser, basicRole);
-        userRoles.add(userRole);
-
-//        basicUser.getUserRoles().addAll(userRoles);
-        basicUser.setUserRoles(userRoles);
-        basicUser = userRepository.save(basicUser);
-        return basicUser;
+        Optional<User> retrievedUser = userRepository.findById(user.getId());
+        Assert.assertEquals(newPassword, retrievedUser.get().getPassword());
     }
-
-
-
-
-    private Role createRole(RolesEnum rolesEnum) {
-        return new Role(rolesEnum);
-    }
-
-    private Plan createBasicPlan(PlansEnum plansEnum) {
-        return new Plan(plansEnum);
-    }
-
 }

@@ -24,8 +24,10 @@ public class User implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    @Column(unique = true)
     private String username;
     private String password;
+    @Column(unique = true)
     private String email;
 
     @Column(name = "first_name")
@@ -47,12 +49,19 @@ public class User implements Serializable, UserDetails {
 
     private boolean enabled;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_id")
-    private Plan plan = new Plan();
+    private Plan plan;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<UserRole> userRoles = new HashSet<>();
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "user"
+    )
+    private Set<PasswordResetToken> passwordResetTokens = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

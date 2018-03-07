@@ -7,8 +7,10 @@ import com.example.backend.persistence.repositories.PlanRepository;
 import com.example.backend.persistence.repositories.RoleRepository;
 import com.example.backend.persistence.repositories.UserRepository;
 import com.example.enums.PlansEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,6 +18,7 @@ import java.util.Set;
 
 @Service
 @Transactional
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -45,5 +48,12 @@ public class UserService {
         //user.getUserRoles().addAll(userRoles);
         user = userRepository.save(user);
         return user;
+    }
+
+    @Transactional
+    public void updateUserPassword(long userId, String password) {
+        password = bCryptPasswordEncoder.encode(password);
+        userRepository.updateUserPassword(userId, password);
+        log.debug("Password successfully updated for user with id: {}", userId);
     }
 }
